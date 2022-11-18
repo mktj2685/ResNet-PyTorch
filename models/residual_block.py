@@ -25,12 +25,12 @@ class Bottleneck(nn.Module):
     def __init__(self, in_ch:int, out_ch:int, stride:int, scale:int=4) -> None:
         super(Bottleneck, self).__init__()
         hid_ch = out_ch // scale
-        self.conv1 = nn.Conv2d(in_ch, hid_ch, 1, 1)
+        self.conv1 = nn.Conv2d(in_ch, hid_ch, 1, 1, bias=False)
         self.bn1 = nn.BatchNorm2d(hid_ch)
         self.relu = nn.ReLU(True)
-        self.conv2 = nn.Conv2d(hid_ch, hid_ch, 3, stride, 1)
+        self.conv2 = nn.Conv2d(hid_ch, hid_ch, 3, stride, 1, bias=False)
         self.bn2 = nn.BatchNorm2d(hid_ch)
-        self.conv3 = nn.Conv2d(hid_ch, out_ch, 1, 1)
+        self.conv3 = nn.Conv2d(hid_ch, out_ch, 1, 1, bias=False)
         self.bn3 = nn.BatchNorm2d(out_ch)
     
     def forward(self, x):
@@ -43,7 +43,6 @@ class Bottleneck(nn.Module):
         x = self.conv3(x)
         x = self.bn3(x)
         return x
-
 
 class ResidualBlock(nn.Module):
 
