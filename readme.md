@@ -15,7 +15,7 @@ pip install -e .
 
 ## Usage
 
-1. Please download and unzip [ImageNet](https://www.kaggle.com/c/imagenet-object-localization-challenge/overview/description)/[Caltech-256]() at `ResNet-Pytorch/data/imagenet`/`ResNet-Pytorch/data/caltech256`.
+1. Please download and unzip [ImageNet](https://www.kaggle.com/c/imagenet-object-localization-challenge/overview/description) or [Caltech-256](https://www.kaggle.com/datasets/jessicali9530/caltech256) at `ResNet-Pytorch/data/imagenet` or `ResNet-Pytorch/data/caltech256`.
 
 ```
 ResNet-Pytorch/
