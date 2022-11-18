@@ -18,8 +18,9 @@ class Caltech256(Dataset):
         self.labels = []
         self.trans = transforms
         paths = glob(osp.join(data_dir, '**', '*.jpg'), recursive=True)
-        paths = [path for path in paths if '257.clutter' not in path]
         for path in paths:
+            if '257.clutter' in path:
+                continue
             label = int(osp.basename(path).split('_')[0]) - 1   # label start at 0.
             self.paths.append(path)
             self.labels.append(label)
