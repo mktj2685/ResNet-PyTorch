@@ -112,7 +112,7 @@ if __name__ == '__main__':
         train_dataset, test_dataset = random_split(dataset, [n_train, n_val])
         train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
         val_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
-        num_classes = 257
+        num_classes = 256
     else:
         raise Exception    
 

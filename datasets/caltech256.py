@@ -12,14 +12,13 @@ class Caltech256(Dataset):
     The following error occurs in Dataloader:
         RuntimeError: stack expects each tensor to be equal size, but got [3, 224, 224] at entry 0 and [1, 224, 224] at entry 11
     """
-    def __init__(self, transforms=None, use_clutter:bool=False):
+    def __init__(self, transforms=None):
         data_dir = './data/Caltech256'
         self.paths = []
         self.labels = []
         self.trans = transforms
         paths = glob(osp.join(data_dir, '**', '*.jpg'), recursive=True)
-        if not use_clutter:
-            paths = [path for path in paths if '257.clutter' not in path]
+        paths = [path for path in paths if '257.clutter' not in path]
         for path in paths:
             label = int(osp.basename(path).split('_')[0]) - 1   # label start at 0.
             self.paths.append(path)
