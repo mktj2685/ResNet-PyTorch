@@ -149,7 +149,7 @@ if __name__ == '__main__':
         logging.info(f'[{datetime.datetime.now()}] start epoch : {i}')
         train_acc, train_loss = train_1epoch(model, train_loader, criterion, optimizer, device)
         val_acc, val_loss = validate_1epoch(model, val_loader, criterion, device)
-        scheduler.step(i)
+        scheduler.step()
         logging.info(
             f'''
             epoch:{i},

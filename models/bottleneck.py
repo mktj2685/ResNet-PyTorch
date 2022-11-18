@@ -4,15 +4,15 @@ import torch.nn as nn
 
 class Bottleneck(nn.Module):
 
-    def __init__(self, in_ch:int, conv_ch:int, out_ch:int, stride:int, activate:bool) -> None:
+    def __init__(self, in_ch:int, hid_ch:int, out_ch:int, stride:int, activate:bool) -> None:
         super(Bottleneck, self).__init__()
         self.activate = activate
-        self.conv1 = nn.Conv2d(in_ch, conv_ch, 1, 1)
-        self.bn1 = nn.BatchNorm2d(conv_ch)
+        self.conv1 = nn.Conv2d(in_ch, hid_ch, 1, 1)
+        self.bn1 = nn.BatchNorm2d(hid_ch)
         self.relu = nn.ReLU(True)
-        self.conv2 = nn.Conv2d(conv_ch, conv_ch, 3, stride, 1)
-        self.bn2 = nn.BatchNorm2d(conv_ch)
-        self.conv3 = nn.Conv2d(conv_ch, out_ch, 1, 1)
+        self.conv2 = nn.Conv2d(hid_ch, hid_ch, 3, stride, 1)
+        self.bn2 = nn.BatchNorm2d(hid_ch)
+        self.conv3 = nn.Conv2d(hid_ch, out_ch, 1, 1)
         self.bn3 = nn.BatchNorm2d(out_ch)
     
     def forward(self, x):

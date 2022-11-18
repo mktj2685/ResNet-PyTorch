@@ -8,21 +8,24 @@ class ResidualBlock(nn.Module):
 
     def __init__(self, in_ch: int, hid_ch:int, out_ch: int, stride:int, bottleneck:bool):
         super(ResidualBlock, self).__init__()
-        self.layers = Bottleneck(in_ch, hid_ch, out_ch, stride, False) if bottleneck else PlainBlock(in_ch, hid_ch, out_ch, stride, False)
+        # NOTE If bottleneck is False, hid_ch is ignored.
+        self.layers = Bottleneck(in_ch, hid_ch, out_ch, stride, False) if bottleneck else PlainBlock(in_ch, out_ch, stride, False)
         # see https://stackoverflow.com/questions/55688645/how-downsample-work-in-resnet-in-pytorch-code
+        # If stride is larger than 1 or the number of input channels is different from the number of output channels,
+        # conv1x1 matches the shape of the input tensor to the shape of the output tensor.
         if stride > 1 or in_ch != out_ch:
-            self.skip_conn = nn.Sequential(
+            self.adjust = nn.Sequential(
                 nn.Conv2d(in_ch, out_ch, 1, stride),
                 nn.BatchNorm2d(out_ch)
             )
         else:
-            self.skip_conn = None
+            self.adjust = None
         self.relu = nn.ReLU(True)
 
     def forward(self, x):
         out = self.layers(x)
-        if self.skip_conn:
-            x = self.skip_conn(x)
+        if self.adjust:
+            x = self.adjust(x)
         out = out + x
         out = self.relu(out)
         return out
