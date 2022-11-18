@@ -1,25 +1,62 @@
 import torch
 import torch.nn as nn
-from models.plain_block import PlainBlock
-from models.bottleneck import Bottleneck
+
+
+class Plain(nn.Module):
+
+    def __init__(self, in_ch:int, out_ch:int, stride:int) -> None:
+        super(Plain, self).__init__()
+        self.conv1 = nn.Conv2d(in_ch, out_ch, 3, stride, 1, bias=False)
+        self.bn1 = nn.BatchNorm2d(out_ch)
+        self.relu = nn.ReLU(True)
+        self.conv2 = nn.Conv2d(out_ch, out_ch, 3, 1, 1, bias=False)
+        self.bn2 = nn.BatchNorm2d(out_ch)
+    
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.conv2(x)
+        x = self.bn2(x)
+        return x
+
+class Bottleneck(nn.Module):
+
+    def __init__(self, in_ch:int, out_ch:int, stride:int, scale:int=4) -> None:
+        super(Bottleneck, self).__init__()
+        hid_ch = out_ch // scale
+        self.conv1 = nn.Conv2d(in_ch, hid_ch, 1, 1)
+        self.bn1 = nn.BatchNorm2d(hid_ch)
+        self.relu = nn.ReLU(True)
+        self.conv2 = nn.Conv2d(hid_ch, hid_ch, 3, stride, 1)
+        self.bn2 = nn.BatchNorm2d(hid_ch)
+        self.conv3 = nn.Conv2d(hid_ch, out_ch, 1, 1)
+        self.bn3 = nn.BatchNorm2d(out_ch)
+    
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.relu(x)
+        x = self.conv3(x)
+        x = self.bn3(x)
+        return x
 
 
 class ResidualBlock(nn.Module):
 
-    def __init__(self, in_ch: int, hid_ch:int, out_ch: int, stride:int, bottleneck:bool):
+    def __init__(self, in_ch: int, out_ch: int, stride:int, bottleneck:bool):
         super(ResidualBlock, self).__init__()
-        # NOTE If bottleneck is False, hid_ch is ignored.
-        self.layers = Bottleneck(in_ch, hid_ch, out_ch, stride, False) if bottleneck else PlainBlock(in_ch, out_ch, stride, False)
+        self.layers = Bottleneck(in_ch, out_ch, stride) if bottleneck else Plain(in_ch, out_ch, stride)
         # see https://stackoverflow.com/questions/55688645/how-downsample-work-in-resnet-in-pytorch-code
-        # If stride is larger than 1 or the number of input channels is different from the number of output channels,
-        # conv1x1 matches the shape of the input tensor to the shape of the output tensor.
-        if stride > 1 or in_ch != out_ch:
+        self.adjust = None
+        if in_ch != out_ch or stride > 1:
             self.adjust = nn.Sequential(
                 nn.Conv2d(in_ch, out_ch, 1, stride),
                 nn.BatchNorm2d(out_ch)
-            )
-        else:
-            self.adjust = None
+            )    
         self.relu = nn.ReLU(True)
 
     def forward(self, x):
@@ -34,7 +71,7 @@ class ResidualBlock(nn.Module):
 if __name__ == '__main__':
     device = 'cuda' if torch.cuda.is_available else 'cpu'
     x = torch.randn(3, 64, 56, 56).to(device)
-    # model = ResidualBlock(64, 64, 128, 2, False).to(device)
-    model = ResidualBlock(64, 64, 128, 2, True).to(device)
+    # model = ResidualBlock(64, 128, False).to(device)
+    model = ResidualBlock(64, 128, True).to(device)
     out = model(x)
     print(out.shape)

@@ -3,7 +3,6 @@
 ## Description
 
 Pytoch Implementation of ResNet and train script with ImageNet and Caltech-256.
-**The implementation may contain bugs because it was implemented without looking at other implementations as much as possible for study purposes.**
 
 ## Install
 

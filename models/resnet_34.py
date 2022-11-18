@@ -8,24 +8,25 @@ class ResNet34(nn.Module):
     def __init__(self, num_classes):
         super(ResNet34, self).__init__()
         self.layers = nn.Sequential(
-            nn.Conv2d(3, 64, 7, 2, 3),                  # output size : 112 x 112
-            nn.MaxPool2d(3, 2, 1),                      # output size : 56 x 56
-            ResidualBlock(64, None, 64, 1, False),
-            ResidualBlock(64, None, 64, 1, False),
-            ResidualBlock(64, None, 128, 2, False),     # output size : 28 x 28
-            ResidualBlock(128, None, 128, 1, False),
-            ResidualBlock(128, None, 128, 1, False),
-            ResidualBlock(128, None, 128, 1, False),
-            ResidualBlock(128, None, 256, 2, False),    # output size : 14 x 14
-            ResidualBlock(256, None, 256, 1, False),
-            ResidualBlock(256, None, 256, 1, False),
-            ResidualBlock(256, None, 256, 1, False),
-            ResidualBlock(256, None, 256, 1, False),
-            ResidualBlock(256, None, 256, 1, False),
-            ResidualBlock(256, None, 512, 2, False),    # output size : 7 x 7
-            ResidualBlock(512, None, 512, 1, False),
-            ResidualBlock(512, None, 512, 1, False),
-            nn.AvgPool2d(7)                             # output size : 1 x 1
+            nn.Conv2d(3, 64, 7, 2, 3),              # conv1 output size : 112 x 112
+            nn.MaxPool2d(3, 2, 1),                  # conv2 output size : 56 x 56
+            ResidualBlock(64, 64, 1, False),        # conv2_1
+            ResidualBlock(64, 64, 1, False),        # conv2_2
+            ResidualBlock(64, 64, 1, False),        # conv2_3
+            ResidualBlock(64, 128, 2, False),       # conv3_1 output size : 28 x 28  (downsample)
+            ResidualBlock(128, 128, 1, False),      # conv3_2
+            ResidualBlock(128, 128, 1, False),      # conv3_3
+            ResidualBlock(128, 128, 1, False),      # conv3_4
+            ResidualBlock(128, 256, 2, False),      # conv4_1 output size : 14 x 14  (downsample)
+            ResidualBlock(256, 256, 1, False),      # conv4_2
+            ResidualBlock(256, 256, 1, False),      # conv4_3
+            ResidualBlock(256, 256, 1, False),      # conv4_4
+            ResidualBlock(256, 256, 1, False),      # conv4_5
+            ResidualBlock(256, 256, 1, False),      # conv4_6
+            ResidualBlock(256, 512, 2, False),      # conv5_1 output size : 7 x 7  (downsample)
+            ResidualBlock(512, 512, 1, False),      # conv5_2
+            ResidualBlock(512, 512, 1, False),      # conv5_3
+            nn.AvgPool2d(7)                         # output size : 1 x 1
         )
         self.fc = nn.Linear(512, num_classes)
 
