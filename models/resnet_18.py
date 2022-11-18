@@ -8,7 +8,9 @@ class ResNet18(nn.Module):
     def __init__(self, num_classes):
         super(ResNet18, self).__init__()
         self.layers = nn.Sequential(
-            nn.Conv2d(3, 64, 7, 2, 3),              # output size : 112 x 112
+            nn.Conv2d(3, 64, 7, 2, 3, bias=False),  # output size : 112 x 112
+            nn.BatchNorm2d(64),
+            nn.ReLU(True),
             nn.MaxPool2d(3, 2, 1),                  # conv2 output size : 56 x 56
             ResidualBlock(64, 64, 1, False),        # conv2_1
             ResidualBlock(64, 64, 1, False),        # conv2_2

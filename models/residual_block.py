@@ -50,9 +50,9 @@ class ResidualBlock(nn.Module):
         super(ResidualBlock, self).__init__()
         self.layers = Bottleneck(in_ch, out_ch, stride) if bottleneck else Plain(in_ch, out_ch, stride)
         # see https://stackoverflow.com/questions/55688645/how-downsample-work-in-resnet-in-pytorch-code
-        self.adjust = None
+        self.proj = None
         if in_ch != out_ch or stride > 1:
-            self.adjust = nn.Sequential(
+            self.proj = nn.Sequential(
                 nn.Conv2d(in_ch, out_ch, 1, stride),
                 nn.BatchNorm2d(out_ch)
             )    
@@ -60,8 +60,8 @@ class ResidualBlock(nn.Module):
 
     def forward(self, x):
         out = self.layers(x)
-        if self.adjust:
-            x = self.adjust(x)
+        if self.proj:
+            x = self.proj(x)
         out = out + x
         out = self.relu(out)
         return out
