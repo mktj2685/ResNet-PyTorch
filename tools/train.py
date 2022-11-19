@@ -4,7 +4,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 import torch
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import Compose, Resize, Normalize, RandomRotation, RandomHorizontalFlip, GaussianBlur, ToTensor
@@ -26,8 +26,6 @@ def parse_args():
     parser.add_argument('--epoch', default=100, type=int, help='number of epochs.')
     parser.add_argument('--batch_size', default=64, type=int, help='how many samples per batch to load.')
     parser.add_argument('--init_lr', default=1e-2, type=float, help='initial learning rate.')
-    parser.add_argument('--step_size', default=10, type=int, help='period of learning rate decay.')
-    parser.add_argument('--gamma', default=0.1, type=float, help='multiplicative factor of learning rate decay.')
     return parser.parse_args()
 
 def train_1epoch(
@@ -105,13 +103,8 @@ if __name__ == '__main__':
         val_loader = DataLoader(ImageNet(phase='val', trans=trans), batch_size=args.batch_size, shuffle=False)
         num_classes = 1000
     elif args.dataset == 'caltech256':
-        dataset = Caltech256(trans)
-        n = len(dataset)
-        n_train = int(n * 0.8)
-        n_val = n - n_train
-        train_dataset, test_dataset = random_split(dataset, [n_train, n_val])
-        train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-        val_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
+        train_loader = DataLoader(Caltech256(phase='train', transforms=trans), batch_size=args.batch_size, shuffle=True)
+        val_loader = DataLoader(Caltech256(phase='val', transforms=trans), batch_size=args.batch_size, shuffle=False)
         num_classes = 256
     else:
         raise Exception    
@@ -139,7 +132,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(), lr=args.init_lr)
 
     # create scheduler
-    scheduler = StepLR(optimizer, args.step_size, args.gamma)
+    scheduler = ReduceLROnPlateau(optimizer, 'min')
 
     # loop run epoch
     best_loss = float('inf')
@@ -149,7 +142,7 @@ if __name__ == '__main__':
         logging.info(f'[{datetime.datetime.now()}] start epoch : {i}')
         train_acc, train_loss = train_1epoch(model, train_loader, criterion, optimizer, device)
         val_acc, val_loss = validate_1epoch(model, val_loader, criterion, device)
-        scheduler.step()
+        scheduler.step(val_loss)
         logging.info(
             f'''
             epoch:{i},

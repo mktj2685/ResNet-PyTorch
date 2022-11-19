@@ -53,7 +53,7 @@ class ResidualBlock(nn.Module):
         self.proj = None
         if in_ch != out_ch or stride > 1:
             self.proj = nn.Sequential(
-                nn.Conv2d(in_ch, out_ch, 1, stride),
+                nn.Conv2d(in_ch, out_ch, 1, stride, bias=False),
                 nn.BatchNorm2d(out_ch)
             )    
         self.relu = nn.ReLU(True)
